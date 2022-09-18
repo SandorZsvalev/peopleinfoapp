@@ -1,0 +1,162 @@
+openapi: 3.0.2
+info:
+  description: Сервис по получению короткой ссылки для перехода на оригинальную ссылку
+  version: 1.0.0
+  title: Short link service
+  contact:
+    email: maxkizi@yandex.ru
+servers:
+  - url: http://localhost:8080/api/v1
+tags:
+  - name: LinkController
+    description: Получение короткой ссылки, переход на оригинальную, получение статистики, удаление короткой ссылки
+paths:
+  /short-link:
+    post:
+      tags:
+        - LinkController
+      summary: Возвращает короткую ссылку по переданной оригинальной
+      description: Возвращает короткую ссылку по переданной оригинальной
+      parameters:
+        - in: header
+          name: Authorization
+          schema:
+            type: string
+          required: true
+          description: Bearer [jwt token]
+      requestBody:
+        content:
+          text:
+            schema:
+              type: string
+              description: Полная ссылка
+              example: https://www.google.com
+      responses:
+        '200':
+          description: ok
+          content:
+            text:
+              schema:
+                type: string
+                description: Короткая ссылка
+                example: go.le933747933
+        '400':
+          description: Bad request
+          content:
+            text:
+              schema:
+                type: string
+                example: Нерабочая полная ссылка. Ссылка (информация по ссылке)  не найдена
+        '403':
+          description: Forbidden
+
+  /{shortLink}:
+    parameters:
+      - name: shortLink
+        in: path
+        description: Короткая ссылка
+        required: true
+        schema:
+          type: string
+          description: Короткая ссылка
+          example: go.le933747933
+      - in: header
+        name: Authorization
+        schema:
+          type: string
+        required: true
+        description: Bearer [jwt token]
+    get:
+      tags:
+        - LinkController
+      summary: переход на полную ссылку по короткой
+      description: переход на полную ссылку по короткой
+      responses:
+        '200':
+          description: ok
+        '400':
+          description: Bad request
+          content:
+            text:
+              schema:
+                type: string
+                example: Время жизни ссылки истекло. Ссылка будет удалена
+        '403':
+          description: Forbidden
+    delete:
+      tags:
+        - LinkController
+      summary: Удаление короткой ссылки
+      description: Удаление короткой ссылки
+      responses:
+        '200':
+          description: ok
+
+        '400':
+          description: Bad request
+          content:
+            text:
+              schema:
+                type: string
+                example: Ссылка (информация по ссылке)  не найдена
+        '403':
+          description: Forbidden
+
+  /analytics/{shortLink}:
+    parameters:
+      - name: shortLink
+        in: path
+        description: Короткая ссылка
+        required: true
+        schema:
+          type: string
+          description: Короткая ссылка
+          example: go.le933747933
+      - in: header
+        name: Authorization
+        schema:
+          type: string
+        required: true
+        description: Bearer [jwt token]
+    get:
+      tags:
+        - LinkController
+      summary: Количество переходов по короткой ссылке
+      description: Количество переходов по короткой ссылке
+      responses:
+        '200':
+          description: ok
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LinkEntityDto'
+        '400':
+          description: Bad request
+          content:
+            text:
+              schema:
+                type: string
+                example: Ссылка (информация по ссылке)  не найдена
+        '403':
+          description: Forbidden
+
+
+
+components:
+  schemas:
+    LinkEntityDto:
+      type: object
+      properties:
+        shortLink:
+          type: string
+          example: go.le7686876
+          description: Короткая ссылка
+        fullLink:
+          type: string
+          example: https://google.com
+          description: Полная ссылка
+        countOfCalls:
+          type: integer
+          example: 34
+          description: Количество переходов по ссылке
+

@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd">
+
+    <bean id="coverter" class="org.alexzhvalev.peopleinfoapplication.converter.PersonJsonConverter"/>
+    <bean id="postgresConnector" class="org.alexzhvalev.peopleinfoapplication.util.PostgressConnector"/>
+    <bean id="personDaoImpl" class="org.alexzhvalev.peopleinfoapplication.dao.PersonDaoImpl">
+        <constructor-arg ref="postgresConnector"/>
+    </bean>
+    <bean id="personServiceImpl" class="org.alexzhvalev.peopleinfoapplication.service.PersonServiceImpl">
+        <constructor-arg ref="personDaoImpl"/>
+    </bean>
+    <bean id="personFileControllerImpl" class="org.alexzhvalev.peopleinfoapplication.filecontroller.PersonFileControllerImpl">
+        <constructor-arg index="0" ref="personServiceImpl"/>
+        <constructor-arg index="1" ref="coverter"/>
+    </bean>
+
+</beans>
