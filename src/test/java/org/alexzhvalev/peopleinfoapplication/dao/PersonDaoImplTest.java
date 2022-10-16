@@ -2,17 +2,21 @@ package org.alexzhvalev.peopleinfoapplication.dao;
 
 import org.alexzhvalev.peopleinfoapplication.exception.PersonNotFoundException;
 import org.alexzhvalev.peopleinfoapplication.model.Person;
+import org.alexzhvalev.peopleinfoapplication.util.DatabaseConnector;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
 @SpringBootTest
+@ActiveProfiles ("test")
 class PersonDaoImplTest {
 
     private static final String CREATE_TABLE = "CREATE TABLE person (" +
@@ -22,16 +26,17 @@ class PersonDaoImplTest {
     @Autowired
     private PersonDao personDao;
 
-/*
-    @BeforeAll
-    static void init() throws SQLException {
-        DatabaseConnector databaseConnector = new H2Connector();
-        createTables(databaseConnector.getConnection());
-        personDao = new PersonDaoImpl(databaseConnector);
-    }
-*/
+    @Autowired
+    private DatabaseConnector databaseConnector;
+
 
     @BeforeEach
+    void init() throws SQLException {
+        createTables(databaseConnector.getConnection());
+    }
+
+
+    @AfterEach
     void deleteAll() {
         personDao.deleteAll();
     }
@@ -71,10 +76,14 @@ class PersonDaoImplTest {
         Assertions.assertEquals(savedPerson, updatedPerson);
     }
 
-    private static void createTables(Connection connection) throws SQLException {
+    private void createTables(Connection connection) throws SQLException {
 
-        PreparedStatement preparedStatement = connection.prepareStatement(CREATE_TABLE);
-        preparedStatement.execute();
+        try (PreparedStatement preparedStatement = connection.prepareStatement(CREATE_TABLE);){
+            preparedStatement.execute();
+        } catch (SQLException e){
+
+        }
+
 
     }
 
